@@ -1,7 +1,6 @@
 from random import randint
 from tkinter import *
 
-
 buttons = []
 field = []
 
@@ -17,9 +16,9 @@ def update_button(x, y):
 
 def alt_button(x, y):
     if buttons[x][y].cget('text') == 'X':
-        buttons[x][y].config(text = '', bg='gray', activebackground='white')
+        buttons[x][y].config(text='', bg='gray', activebackground='white')
     else:
-        buttons[x][y].config(text = 'X', bg='yellow', activebackground='white')
+        buttons[x][y].config(text='X', bg='yellow', activebackground='white')
 
 
 def print_field():
@@ -32,7 +31,7 @@ def print_field():
 def calc_x(x, y):
     global field
     w = len(field) - 1
-    h = len(field[0])-1
+    h = len(field[0]) - 1
     cnt = 0
     if x > 0 and y > 0 and field[x - 1][y - 1] == 'X':
         cnt += 1
@@ -54,11 +53,18 @@ def calc_x(x, y):
     return cnt if cnt > 0 else '-'
 
 
-def program(width, height, mines):
+def make_field(width, height, mines):
+    """
+    :param width: ширина поля
+    :param height: высота поля
+    :param mines: количество мин
+    :return: None
+
+    Создаем новое поле для игры и очищаем все кнопки
+    """
     global buttons
     global field
 
-    buttons = []
     field = []
 
     for _ in range(width):
@@ -69,13 +75,29 @@ def program(width, height, mines):
         field[x][y] = 'X'
     for y in range(width):
         for x in range(height):
+            buttons[x][y].config(text='', bg='gray', activebackground='white')
             if field[x][y] != 'X':
                 field[x][y] = calc_x(x, y)
     print('Обработанная карта')
     print_field()
 
+
+def start_game(width, height, mines):
+    """
+    :param width: ширина поля
+    :param height: высота поля
+    :param mines: количество мин
+    :return: None
+
+    Первый запуск игры создаются кнопки и поле
+    """
+    global buttons
+    global field
+
+    buttons = []
+
     for _ in range(width):
-        buttons.append([None]*height)
+        buttons.append([None] * height)
 
     for y in range(height):
         row = Frame()
@@ -87,9 +109,28 @@ def program(width, height, mines):
             b.bind('<Button-3>', lambda e, xx=x, yy=y: alt_button(xx, yy))
             b.pack(expand=YES, fill=BOTH, side=LEFT)
 
+    make_field(width, height, mines)
+
+
+def new_game():
+    """
+    Первое нажатие на кнопку start, создавать кнопки надо только один раз
+    """
+    global start_button
+    start_button.config(command=restart_game, text='Restart game')
+    start_game(10, 10, 10)
+
+
+def restart_game():
+    """
+    Повторное нажатие на кнопку start, надо только очистить поле и кнопки
+    """
+    make_field(10, 10, 10)
+
 
 root = Tk()
 root.title('Minesweeper')
-program(15, 15, 10)
+start_button = Button(text='Start game', font='Arial 24', command=new_game)
+start_button.pack()
 
 root.mainloop()
